@@ -119,6 +119,12 @@ export default {
       // console.log("walk", walk);
       this.scrollDirectionLeft = walk < 0;
       // console.log("scrollDirectionLeft", this.scrollDirectionLeft);
+      // if (!this.clickDragActive) return;
+      // const carousel = this.$refs.carousel;
+      // const x = e.pageX - carousel.offsetLeft;
+      // const walk = x - this.scrollStartX;
+      // carousel.scrollLeft = this.scrollLeft - walk;
+      // this.scrollDirectionLeft = walk < 0;
     },
   },
   computed: {
@@ -134,7 +140,7 @@ export default {
     },
   },
   mounted() {
-    console.log(this.$refs);
+    console.log(this.$refs.console);
     console.log(this.cardSnapPoints);
   },
 };
@@ -142,6 +148,7 @@ export default {
 <style lang="scss" scoped>
 .carousel-outer-container {
   width: 100%;
+  max-width: 380px;
   height: 300px;
   background-color: #ccc;
   overflow-y: hidden;

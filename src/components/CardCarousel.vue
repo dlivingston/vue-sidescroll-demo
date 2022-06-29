@@ -1,21 +1,23 @@
 <template>
   <div class="component-wrapper">
     <div
-      class="carousel-wrapper"
+      class="carousel-container"
       ref="carousel"
       @mousedown="sideSlideStart($event)"
       @mouseup="sideSlideEnd"
       @mousemove="sideSlideMove($event)"
       @mouseleave="sideSlideEnd"
     >
-      <div class="card" v-for="(data, index) in cardData" :key="index">
-        <h2>{{ data.coverage }}</h2>
-        <div class="coverage-info">
-          <div><strong>Vehicle Premium:</strong><br />{{ data.premium }}</div>
-          <div><strong>Deductible:</strong><br />{{ data.deductible }}</div>
-          <div><strong>Limit:</strong><br />{{ data.limit }}</div>
+      <div class="carousel-inner-wrapper">
+        <div class="card" v-for="(data, index) in cardData" :key="index">
+          <h2>{{ data.coverage }}</h2>
+          <div class="coverage-info">
+            <div><strong>Vehicle Premium:</strong><br />{{ data.premium }}</div>
+            <div><strong>Deductible:</strong><br />{{ data.deductible }}</div>
+            <div><strong>Limit:</strong><br />{{ data.limit }}</div>
+          </div>
+          <button class="btn-select" @click="send(data.coverage)">Select</button>
         </div>
-        <button class="btn-select" @click="send(data.coverage)">Select</button>
       </div>
     </div>
     <div class="button-wrapper">
@@ -59,6 +61,7 @@ export default {
       clickDragActive: false,
       scrollStartX: 0,
       scrollLeft: 0,
+      scrollDirectionLeft: true,
       cardData: [
         {
           coverage: "Bodily Injury Liability",
@@ -119,6 +122,18 @@ export default {
       this.scrollLeft = carousel.scrollLeft;
     },
     sideSlideEnd() {
+      if (!this.clickDragActive) return;
+      const carousel = this.$refs.carousel;
+      if (this.scrollDirectionLeft) {
+        carousel.scrollLeft = this.cardSnapPoints.find(
+          (e) => e > carousel.scrollLeft
+        );
+      }
+      if (!this.scrollDirectionLeft) {
+        carousel.scrollLeft = this.cardSnapPoints
+          .reverse()
+          .find((e) => e < carousel.scrollLeft);
+      }
       this.clickDragActive = false;
     },
     sideSlideMove(e) {
@@ -127,25 +142,41 @@ export default {
       const x = e.pageX;
       const walk = x - this.scrollStartX;
       this.$refs.carousel.scrollLeft = this.scrollLeft - walk;
+      this.scrollDirectionLeft = walk < 0;
+    },
+  },
+  computed: {
+    cardSnapPoints() {
+      const startPoints = [];
+      const cardWidth = 266;
+      let interval = 0;
+      this.cardData.forEach(() => {
+        startPoints.push(interval);
+        interval = interval + cardWidth;
+      });
+      return startPoints;
     },
   },
 };
 </script>
 <style lang="scss" scoped>
-.carousel-wrapper {
+.carousel-container {
   width: 100%;
   height: 300px;
   overflow-y: hidden;
   overflow-x: scroll;
   display: flex;
   flex-wrap: nowrap;
+  scrollbar-width: none;
+  scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   &::-webkit-scrollbar {
     display: none;
   }
-  scrollbar-width: none;
-  // overscroll-behavior-x: contain;
-  // scroll-snap-type: x proximity;
+}
+.carousel-inner-wrapper {
+  display: flex;
+  flex-wrap: nowrap;
 }
 .card {
   background-color: var(--messageBackground);
@@ -157,7 +188,7 @@ export default {
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
-  scroll-snap-align: start;
+  width: 250px;
   button {
     margin-top: auto;
     background: var(--rwcTheme);

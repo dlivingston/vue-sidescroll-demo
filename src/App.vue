@@ -5,6 +5,7 @@ import CardCarousel from './components/CardCarousel.vue';
 <template>
   <div class="main-container">
     <CardCarousel />
+
   </div>
 </template>
 
@@ -104,5 +105,10 @@ nav a:first-of-type {
     padding: 1rem 0;
     margin-top: 1rem;
   }
+}
+h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-decoration: underline;
 }
 </style>

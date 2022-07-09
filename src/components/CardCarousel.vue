@@ -16,10 +16,38 @@
             <div><strong>Deductible:</strong><br />{{ data.deductible }}</div>
             <div><strong>Limit:</strong><br />{{ data.limit }}</div>
           </div>
-          <button class="btn-select" @click="send(data.coverage)">Select</button>
+          <button class="btn-select" @click="send(data.coverage)">
+            Select
+          </button>
         </div>
       </div>
     </div>
+    <button
+      aria-label="Swipe previous slide"
+      class="carousel-button carousel-button-prev"
+      :disabled="prevDisabled"
+      :class="{ hidden: prevDisabled }"
+      @click="slidePrev"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240.823 240.823">
+        <path
+          d="M57.633 129.007L165.93 237.268c4.752 4.74 12.451 4.74 17.215 0 4.752-4.74 4.752-12.439 0-17.179l-99.707-99.671 99.695-99.671c4.752-4.74 4.752-12.439 0-17.191-4.752-4.74-12.463-4.74-17.215 0L57.621 111.816c-4.679 4.691-4.679 12.511.012 17.191z"
+        ></path>
+      </svg>
+    </button>
+    <button
+      aria-label="Swipe next slide"
+      class="carousel-button carousel-button-next"
+      :disabled="nextDisabled"
+      :class="{ hidden: nextDisabled }"
+      @click="slideNext"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240.823 240.823">
+        <path
+          d="M183.189 111.816L74.892 3.555c-4.752-4.74-12.451-4.74-17.215 0-4.752 4.74-4.752 12.439 0 17.179l99.707 99.671-99.695 99.671c-4.752 4.74-4.752 12.439 0 17.191 4.752 4.74 12.463 4.74 17.215 0l108.297-108.261c4.68-4.691 4.68-12.511-.012-17.19z"
+        ></path>
+      </svg>
+    </button>
     <div class="button-wrapper">
       <button @click="toggleListView()">List View</button>
       <button @click="button3Send()">Done</button>
@@ -62,6 +90,9 @@ export default {
       scrollStartX: 0,
       scrollLeft: 0,
       scrollDirectionLeft: true,
+      currentSnapPoint: 0,
+      nextDisabled: false,
+      prevDisabled: true,
       cardData: [
         {
           coverage: "Bodily Injury Liability",
@@ -144,6 +175,27 @@ export default {
       this.$refs.carousel.scrollLeft = this.scrollLeft - walk;
       this.scrollDirectionLeft = walk < 0;
     },
+    slideNext() {
+      const carousel = this.$refs.carousel;
+      let next = this.currentSnapPoint + 1;
+      if (next < this.cardSnapPoints.length) {
+        carousel.scrollLeft = this.cardSnapPoints[next];
+        this.currentSnapPoint = next;
+        this.prevDisabled = false;
+        this.nextDisabled =
+          this.currentSnapPoint === this.cardSnapPoints.length - 1;
+      }
+    },
+    slidePrev() {
+      const carousel = this.$refs.carousel;
+      let prev = this.currentSnapPoint - 1;
+      if (prev >= 0) {
+        this.nextDisabled = false;
+        carousel.scrollLeft = this.cardSnapPoints[prev];
+        this.currentSnapPoint = prev;
+        this.prevDisabled = this.currentSnapPoint === 0;
+      }
+    },
   },
   computed: {
     cardSnapPoints() {
@@ -160,6 +212,9 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+.component-wrapper {
+  position: relative;
+}
 .carousel-container {
   width: 100%;
   height: 300px;
@@ -189,6 +244,7 @@ export default {
   flex-direction: column;
   flex-wrap: nowrap;
   width: 250px;
+  cursor: grab;
   button {
     margin-top: auto;
     background: var(--rwcTheme);
@@ -203,9 +259,41 @@ export default {
     font-size: var(--fontSize);
     line-height: 1.2;
     transition: opacity 0.4s;
+    cursor: pointer;
     &:hover {
       opacity: 0.8;
     }
+  }
+}
+.carousel-button {
+  position: absolute;
+  top: 50%;
+  left: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  border: none;
+  border-radius: 50%;
+  opacity: 0.6;
+  transition: opacity 0.4s, visibility 0.4s;
+  transform: translateY(-50%);
+  &.carousel-button-next {
+    right: 8px;
+    left: auto;
+  }
+  svg {
+    height: 12px;
+  }
+  &.hidden {
+    pointer-events: none;
+    visibility: hidden;
+    opacity: 0;
+  }
+  &:hover {
+    opacity: 1;
   }
 }
 .button-wrapper {

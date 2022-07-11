@@ -209,6 +209,9 @@ export default {
       return startPoints;
     },
   },
+  mounted() {
+    this.nextDisabled = this.cardSnapPoints.length === 1;
+  },
 };
 </script>
 <style lang="scss" scoped>
